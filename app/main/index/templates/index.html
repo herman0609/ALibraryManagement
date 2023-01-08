@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block mycontent %}
+      <section class="py-0" id="home">
+        <div class="bg-holder d-none d-md-block" style="background-image:url(static/static/image/hero-section.png);background-position:right bottom;background-size:contain;"></div>
+        <!--/.bg-holder-->
+        <div class="bg-holder d-block d-md-none" style="background-image:url(static/static/image/hero-bg.png);background-position:right top;background-size:contain;"></div>
+        <!--/.bg-holder-->
+        <div class="container">
+          <div class="row align-items-center min-vh-md-75">
+            <div class="col-md-7 col-lg-6 py-6 text-sm-start text-center">
+              <h1 class="mt-6 mb-sm-4 display-4 fw-semi-bold lh-sm fs-4 fs-lg-6 fs-xxl-7">Today's research, <br class="d-block d-lg-none d-xl-block">tomorrow's innovation</h1>
+              <p class="mb-4 fs-1">Accelerating research discovery to shape a better future </p>
+              <div class="pt-3">
+            <form class="form form-horizontal" method="get" action="{{ url_for('book.index') }}">
+                <div class="input-group  input-group-lg">
+                    {{ search_form.search(placeholder="<return> to search",class_="form-control") }}
+
+                </div>
+            </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+	  
+	  <!--必要样式-->
+	  <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='sta/css/component.css') }}" />
+	  
+	  <script src="{{ url_for('static',filename='sta/js/modernizr.custom.js') }}"></script>
+	  <div class="container">	
+	  <div class="main">
+	  	<ul id="bk-list" class="bk-list clearfix">
+			
+			{% for book in books %}
+	  		<li>
+	  			<div class="bk-book book-1 bk-bookdefault">
+	  				<div class="bk-front">
+	  					<div class="bk-cover">
+	  						<h2>
+	  							<span>{{ book.author }}</span>
+	  							<span>{{ book.title }}</span>
+	  						</h2>
+	  					</div>
+	  					<div class="bk-cover-back"></div>
+	  				</div>
+	  				<div class="bk-page">
+	  					<div class="bk-content bk-content-current">
+	  						<p>{{ book.summary }}</p>
+						</div>
+	  					<div class="bk-content">
+	  						<p>Whale catfish leatherjacket deep sea anglerfish grenadier sawfish pompano dolphinfish carp large-eye bream, squeaker amago. Sandroller; rough scad, tiger shovelnose catfish snubnose parasitic eel? Black bass soldierfish duckbill--Rattail Atlantic saury Blind shark California halibut; false trevally warty angler!</p>
+	  					</div>
+	  					<div class="bk-content">
+	  						<p>Trahira giant wels cutlassfish snapper koi blackchin mummichog mustard eel rock bass whiff murray cod. Bigmouth buffalo ling cod giant wels, sauger pink salmon. Clingfish luderick treefish flatfish Cherubfish oldwife Indian mul gizzard shad hagfish zebra danio. Butterfly ray lizardfish ponyfish muskellunge Long-finned sand diver mullet swordfish limia ghost carp filefish.</p>
+	  					</div>
+	  				</div>
+	  				<div class="bk-back">
+	  					<p>{{ book.summary }}</p>
+	  				</div>
+	  				<div class="bk-right"></div>
+	  				<div class="bk-left">
+	  					<h2>
+	  						<span>{{ book.isbn }}</span>
+	  						<span>{{ book.title }}</span>
+	  					</h2>
+	  				</div>
+	  				<div class="bk-top"></div>
+	  				<div class="bk-bottom"></div>
+	  			</div>
+	  			<div class="bk-info">
+	  				<button class="bk-bookback">Flip</button>
+	  				<button class="bk-bookview">View inside</button>
+	  				<h3>
+	  					<span>{{ book.author }}</span>
+	  					<span>{{ book.tittle }}</span>
+	  				</h3>
+	  				<p>{{ book.summary }}</p>
+	  			</div>
+	  		</li>
+			{% endfor %}
+	  		
+	  	</ul>
+	  </div>
+	  
+	  <script src="{{ url_for('static',filename='sta/js/jquery.min.js') }}"></script>
+	  <script src="{{ url_for('static',filename='sta/js/books1.js') }}"></script>
+	  <script>
+	  $(function() {
+	  
+	  	Books.init();
+	  
+	  });
+	  </script>
+
+    <table class="table table-striped table-hover animated fadeInDown">
+        <caption>Book Top 3</caption>
+        <thead class="hidden-xs">
+        <tr>
+            <th>Book</th>
+            <th>Author</th>
+            <th>ISBN</th>
+            <th>Avaiable</th>
+            <th>times</th>
+            {% if current_user.is_authenticated %}
+                <th>Borrow</th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for book in books %}
+            <tr class="animated fadeInLeft delay-{{ loop.index0 }}">
+                <td><a href="{{ url_for('book.detail',book_id=book.id) }}">{{ book.title }}</a>
+                    <p class="visible-xs-block">{{ book.author }}</p>
+                    <p class="visible-xs-block">{{ "Avaiable: "~ book.numbers }} / {{ book.can_borrow_number() }}</p></td>
+                <td class="hidden-xs">{{ book.author }}</td>
+                <td class="hidden-xs">{{ book.isbn }}</td>
+                <td class="hidden-xs">{{ book.numbers }} / {{ book.can_borrow_number() }}</td>
+                <td class="hidden-xs">{{ book.logs.count() }}</td>
+                {% if current_user.is_authenticated %}
+                    {% with log =current_user.borrowing(book) %}
+                        {% if log %}
+                            <td><a class="btn btn-primary"
+                                   href="{{ url_for('log.book_return',log_id=log.id,next=request.path) }}">
+                                Back
+                            </a></td>
+                        {% else %}
+                            <td><a class="btn btn-success"
+                                   href="{{ url_for('log.book_borrow',book_id=book.id,next=request.path) }}"
+                                   {% if not book.can_borrow() %}disabled="disabled"{% endif %}>
+                                Borrow
+                            </a></td>
+                        {% endif %}
+                    {% endwith %}
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="row animated fadeInUp delay">
+        <div class="col-md-9">
+            <h4>New Comments</h4>
+            {% for comment in recently_comments %}
+                <li class="list-group-item clearfix animated fadeInLeft delay-{{ loop.index0 }}">
+                    <div class="media">
+                        {% if comment.user.avatar_url() %}
+                            <div class="media-left">
+                                <a href="{{ url_for('user.detail',user_id=comment.user.id) }}">
+                                    <div class="media-object avatar avatar-mini"
+                                         style="background-image: url({{ comment.user.avatar_url() }})"></div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        <div class="media-body">
+                            <p class="media-heading"><a
+                                    href="{{ url_for('user.detail',user_id=comment.user.id) }}">
+                                {{ comment.user.name }}</a>
+                                <small>{{ comment.user.headline or "" }}</small>
+                                {% if comment.create_timestamp==comment.edit_timestamp %}
+                                    <span class="pull-right">
+                                        <small>
+                                            Post: {{ comment.create_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</small>
+                                    </span>
+                                {% else %}
+                                    <span class="pull-right">
+                                        <small>
+                                            Edit: {{ comment.edit_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</small>
+                                    </span>
+                                {% endif %}
+                            </p>
+                            <span class="line-wrap">{{ "Comment 「"~comment.book.title~"」 : " }}</span>
+                            <span class="line-wrap"><a class="list-group-item-text"
+                                                       href="{{ url_for('book.detail',book_id=comment.book_id) }}">{{ comment.comment }}</a></span>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </div>
+        <div class="col-md-3 animated fadeInUp">
+            <table class="table table-striped table-hover">
+                <caption>User Top 5</caption>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Borrow Times</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                    <tr class="animated fadeInLeft delay-{{ loop.index0 }}">
+                        <td><a href="{{ url_for('user.detail',user_id=user.id) }}">{{ user.name }}</a></td>
+                        <td>{{ user.logs.count() }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+{% endblock %}

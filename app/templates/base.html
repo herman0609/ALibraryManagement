@@ -1,0 +1,114 @@
+{%- extends "bootstrap/base.html" -%}
+{%- from 'bootstrap/utils.html' import flashed_messages,icon -%}
+{%- block metas -%}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+{%- endblock metas -%}
+{%- block title -%}
+    {%- if title -%}
+        {{ title }} - Book Library
+    {%- else -%}
+        Book Library
+    {%- endif -%}
+{%- endblock -%}
+{%- block styles -%}
+    {#    {{ super() }}#}
+    <link href="{{ url_for('static',filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static',filename='css/bootstrap-theme.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static',filename='css/main.css') }}" rel="stylesheet">
+	<!-- ===============================================-->
+	<!--    Favicons-->
+	<!-- ===============================================-->
+	<link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static',filename='static/image/apple-touch-icon.png') }}">
+	<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static',filename='static/image/favicon-32x32.png') }}">
+	<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static',filename='static/image/favicon-16x16.png') }}">
+	<link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static',filename='static/image/favicon.ico') }}">
+	<link rel="manifest" href="{{ url_for('static',filename='static/image/manifest.json') }}">
+	<meta name="msapplication-TileImage" content="static/static/image/mstile-150x150.png">
+	<meta name="theme-color" content="#ffffff">
+	
+	<!-- ===============================================-->
+	<!--    Stylesheets-->
+	<!-- ===============================================-->
+	<link href="{{ url_for('static',filename='static/css/theme.min.css') }}" rel="stylesheet">
+{%- endblock -%}
+{%- block body_attribs %} class="Site"{%- endblock -%}
+{%- block navbar -%}
+
+      <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3 backdrop" data-navbar-on-scroll="data-navbar-on-scroll">
+        <div class="container"><a class="navbar-brand d-flex align-items-center fw-semi-bold fs-3" href="{{ url_for('main.index') }}"> <img class="me-3" src="{{ url_for('static',filename='static/picture/logo.png') }}" alt="">
+            <div class="text-primary font-base">LIB</div>
+          </a><button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+          <div class="collapse navbar-collapse border-top border-lg-0 mt-4 mt-lg-0" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto pt-2 pt-lg-0 font-base">
+              <li class="nav-item"><a class="nav-link fw-medium active" aria-current="page" href="{{ url_for('main.index') }}">Home</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ url_for('book.index') }}">Books</a></li>
+              <li class="nav-item"><a class="nav-link" href="http://47.99.103.129:5000/shop/home">Shop</a></li>
+			  <li class="nav-item"><a class="nav-link" href="http://47.99.103.129:5001">Social App</a></li>
+            </ul>
+			<ul class="nav navbar-nav">
+			    {%- if current_user.is_authenticated -%}
+			        <li {%- if request.path == url_for('book.tags') %} class="active"{%- endif -%} ><a
+			                href="{{ url_for('book.tags') }}">Tags</a></li>
+			        {%- if current_user.can(Permission.ADD_BOOK) -%}
+			            <li {%- if request.path == url_for('book.add') %} class="active"{%- endif -%} ><a
+			                    href="{{ url_for('book.add') }}">Add Books</a></li>
+			        {%- endif -%}
+			        <li {%- if request.path == url_for('user.index') %} class="active"{%- endif -%} ><a
+			                href="{{ url_for('user.index') }}">Users</a></li>
+			        <li {%- if request.path == url_for('log.index') %} class="active"{%- endif -%} ><a
+			                href="{{ url_for('log.index') }}">Borrow Information</a></li>
+			    {%- endif -%}
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+			    {%- if current_user.is_authenticated -%}
+			        <li {% if request.path == url_for('user.detail',user_id=current_user.id) -%}
+			            class="active"{%- endif -%} >
+			            <a href="{{ url_for('user.detail',user_id=current_user.id) }}">{{ current_user.name }}</a>
+			        </li>
+			        <li><a href="{{ url_for('auth.logout') }}">Log out</a></li>
+			    {%- else -%}
+			        <li><a href="{{ url_for('auth.login') }}">Log in</a></li>
+			    {%- endif -%}
+			</ul>
+          </div>
+        </div>
+      </nav>
+
+{%- endblock -%}
+
+{%- block content -%}
+    <main class="container-fluid Site-content">
+        {%- with icon_transform={
+    'success':icon('ok'),
+    'danger':icon('ban-circle'),
+    'info': icon('info-sign'),
+    'warning': icon('alert')} -%}
+            {%- set messages=get_flashed_messages(with_categories=True) -%}
+            {%- if messages -%}
+                {%- for cat, msg in messages -%}
+                    <div class="alert alert-{{ cat }} alert-dismissible animated bounceIn delay-{{ loop.index0 }}"
+                         role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        {{ icon_transform.get(cat) ~' '~ msg }}
+                    </div>
+                {%- endfor -%}
+            {%- endif -%}
+        {%- endwith -%}
+        {%- block mycontent -%}{%- endblock -%}
+    </main>
+
+    <footer class="panel panel-inverse">
+        <div id="site-footer-content">
+            <div><span class="username">Hang Sun</span></div>
+
+            <span class="line-wrap">UoL</span>
+            <span class="line-wrap">SWJTU</span>
+        </div>
+    </footer>
+{%- endblock -%}
+
+{%- block scripts -%}
+    <script src="{{ url_for('static',filename='js/jquery-2.2.3.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
+{%- endblock scripts -%}
